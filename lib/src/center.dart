@@ -12,6 +12,7 @@ import 'package:overlay_center/src/testing.dart';
 import 'package:overlay_center/src/toast/toast.dart';
 import 'package:overlay_center/src/toast/toast_theme.dart';
 import 'package:overlay_center/src/widget.dart';
+import 'package:overlay_center/src/context_extensions.dart';
 
 /// A centralized manager for showing overlays like dialogs, bottom sheets, and snackbars.
 ///
@@ -68,38 +69,32 @@ class OverlayCenter {
 
   /// Displays a Material bottom sheet.
   ///
-  /// A convenience method that wraps `showBottomSheet`. For more control,
-  /// create a standalone function and pass it to [raw].
-  ///
-  /// Returns a [m.PersistentBottomSheetController] to control the bottom sheet.
-  m.PersistentBottomSheetController showBottomSheet<T>(m.Widget sheet) {
-    return raw(
-      (context) =>
-          m.showBottomSheet(context: context, builder: (context) => sheet),
+  /// if [duration] is provided bottom sheet closes automatically after the given duration.
+  void showBottomSheet<T>(m.Widget sheet, {Duration? duration}) {
+    return send(
+      (context) => context.showBottomSheet(sheet, duration: duration),
     );
   }
 
   /// Shows a [m.SnackBar] at the bottom of the screen.
-  ///
-  /// Requires a [m.Scaffold] ancestor.
-  m.ScaffoldFeatureController<m.SnackBar, m.SnackBarClosedReason> showSnackbar(
+  void showSnackbar(
     m.SnackBar snackBar, {
-    w.AnimationStyle? snackbarAnimationStyle,
+    w.AnimationStyle? snackBarAnimationStyle,
   }) {
-    return raw(
-      (context) => m.ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(snackBar, snackBarAnimationStyle: snackbarAnimationStyle),
+    return send(
+      (context) => context.showSnackBar(
+        snackBar,
+        snackBarAnimationStyle: snackBarAnimationStyle,
+      ),
     );
   }
 
   /// Shows a [m.MaterialBanner] at the top of the screen.
   ///
-  /// Requires a [m.Scaffold] ancestor.
-  m.ScaffoldFeatureController<m.MaterialBanner, m.MaterialBannerClosedReason>
-  showMaterialBanner(m.MaterialBanner banner) {
-    return raw(
-      (context) => m.ScaffoldMessenger.of(context).showMaterialBanner(banner),
+  /// if [duration] is provided material banner closes automatically after the given duration.
+  void showMaterialBanner(m.MaterialBanner banner, {Duration? duration}) {
+    return send(
+      (context) => context.showMaterialBanner(banner, duration: duration),
     );
   }
 
@@ -170,7 +165,7 @@ class OverlayCenter {
     Duration fadeDuration = const Duration(milliseconds: 350),
     bool isDismissible = false,
   }) {
-    return raw<void>(
+    return send(
       (context) => context.showToast(
         message: message,
         toastType: toastType,
@@ -189,7 +184,7 @@ class OverlayCenter {
   /// [showDialog] and [showModalBottomSheet].
   ///
   /// Throws an assertion error in debug mode if no [OverlayHandler] is found.
-  Future<T?> request<T>(OverlayAction<Future<T?>> action) {
+  Future<T?> request<T>(OverlayRequest<T> action) {
     if (!_assertHasHandler()) return Future.value(null);
 
     return _registered.first.request(action);
@@ -201,12 +196,12 @@ class OverlayCenter {
   /// such as showing a snackbar and getting its controller.
   ///
   /// Throws a [StateError] if no [OverlayHandler] is found.
-  T raw<T>(OverlayAction<T> action) {
+  void send(OverlaySend action) {
     if (!_assertHasHandler()) {
       throw StateError('No handler registered in current page.');
     }
 
-    return _registered.first.raw(action);
+    _registered.first.send(action);
   }
 
   bool _assertHasHandler() {
@@ -281,5 +276,16 @@ class OverlayCenter {
   @visibleForTesting
   void reset() {
     _registered.clear();
+  }
+}
+
+mixin ScaffoldMessengerExtension on w.BuildContext {
+  void showSnackBar(
+    m.SnackBar snackBar, {
+    w.AnimationStyle? snackbarAnimationStyle,
+  }) {
+    m.ScaffoldMessenger.of(
+      this,
+    ).showSnackBar(snackBar, snackBarAnimationStyle: snackbarAnimationStyle);
   }
 }

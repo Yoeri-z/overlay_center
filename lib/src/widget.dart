@@ -36,12 +36,12 @@ class OverlayHandlerElement extends w.ComponentElement implements Handler {
   OverlayHandlerElement(super.widget);
 
   @override
-  Future<T?> request<T>(OverlayAction<Future<T?>> action) {
+  Future<T?> request<T>(OverlayRequest<T> action) {
     return action(this);
   }
 
   @override
-  T raw<T>(OverlayAction<T> action) {
+  void send(OverlaySend action) {
     return action(this);
   }
 
