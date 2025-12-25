@@ -5,6 +5,14 @@ Show dialogs, toasts and bottom sheets, snackbars, modals and more from anywhere
 Add the package to your project:
 `flutter pub add overlay_center`
 
+# Warning before usage
+
+Overlay center "removes" the dependency on context for overlays, and provides a different method for testing.
+Using this project me be convenient but once you are using it, it is very hard to refactor your code to not use it later on.
+
+This warning is not here to discourage you from using the package but you should first think carefully if this is really what you want.
+If your app depends a lot on dialogs and snackbars or toasts it defenitely recommend using it. If you only have a few dialogs, it is probably overkill.
+
 # How it works
 
 ## Overlay Handler
