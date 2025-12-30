@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 import '../center.dart';
-import '../event.dart';
+import '../effect.dart';
 import 'handler.dart';
 
 /// A widget that provides a [BuildContext] for the [UICenter] to show ui effects.

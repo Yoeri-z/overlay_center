@@ -1,4 +1,4 @@
-import '../event.dart';
+import '../effect.dart';
 
 /// Defines the contract for an effect handler.
 ///

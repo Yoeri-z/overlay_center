@@ -11,7 +11,7 @@ typedef Send = void Function(BuildContext context);
 ///An [RequestEffect] is an event that is send to any handlers
 /// when an effect needs to be shown that can pop with a value.
 ///
-///When testing, [eventType] gives information about the type of effect shown and the [debugProperties]
+///When testing, [debugProperties]
 ///gives properties that were given to this request event at runtime.
 @immutable
 final class RequestEffect<T> {
@@ -35,7 +35,12 @@ final class RequestEffect<T> {
   }
 }
 
-///An [SendEffect] is an event that is send to any handlers when an effect needs to be shown that does not return a value and can not be awaited.
+///A [SendEffect] is an event that is send to any handlers
+///when an effect needs to be shown that does not return
+///a value and can not be awaited.
+///
+///When testing, [debugProperties]
+///gives properties that were given to this request event at runtime.
 @immutable
 final class SendEffect {
   /// Construct an [SendEffect]

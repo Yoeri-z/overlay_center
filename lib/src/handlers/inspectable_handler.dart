@@ -3,7 +3,7 @@ import 'dart:async';
 import 'package:async/async.dart';
 
 import '../center.dart';
-import '../event.dart';
+import '../effect.dart';
 import 'handler.dart';
 
 /// An implementation of [Handler] for testing purposes.
