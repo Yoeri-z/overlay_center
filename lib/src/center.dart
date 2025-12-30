@@ -14,23 +14,23 @@ import 'handlers/element_handler.dart';
 import 'context_extensions.dart';
 import 'handlers/inspectable_handler.dart';
 
-/// A centralized manager for showing overlays like dialogs, bottom sheets, and snackbars.
+/// A centralized manager for showing ui (side) effects like dialogs, bottom sheets, and snackbars.
 ///
-/// `OverlayCenter` provides a simple, consistent API for triggering overlays from
+/// `UICenter` provides a simple, consistent API for triggering effects from
 /// anywhere in your app, without needing direct access to `BuildContext`. It relies on
-/// an [OverlayHandler] being present in the widget tree.
+/// an [EffectHandler] being present in the widget tree.
 ///
 /// Example:
 /// ```dart
-/// OverlayCenter.instance.showDialog(AlertDialog(title: Text('Hi')));
+/// UICenter.instance.showDialog(AlertDialog(title: Text('Hi')));
 /// ```
-class OverlayCenter {
-  OverlayCenter._();
+class UICenter {
+  UICenter._();
 
-  /// The singleton instance of [OverlayCenter].
-  static final instance = OverlayCenter._();
+  /// The singleton instance of [UICenter].
+  static final instance = UICenter._();
 
-  /// When `true`, an assertion will be thrown if multiple [OverlayHandler]
+  /// When `true`, an assertion will be thrown if multiple [EffectHandler]
   /// widgets are registered on the same page.
   ///
   /// This is useful for debugging to ensure that there's only one handler active
@@ -53,7 +53,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return request<T>(
-      OverlayRequestEvent<T>(
+      RequestEffect<T>(
         eventType: RequestEventType.showDialog,
         callback: (context) => m.showDialog<T>(
           context: context,
@@ -85,7 +85,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return send(
-      OverlaySendEvent(
+      SendEffect(
         eventType: SendEventType.showBottomSheet,
         callback: (context) =>
             context.showBottomSheet(sheet, duration: duration),
@@ -105,7 +105,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return send(
-      OverlaySendEvent(
+      SendEffect(
         eventType: SendEventType.showSnackbar,
         callback: (context) => context.showSnackBar(
           snackBar,
@@ -130,7 +130,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return send(
-      OverlaySendEvent(
+      SendEffect(
         eventType: SendEventType.showMaterialBanner,
         callback: (context) =>
             context.showMaterialBanner(banner, duration: duration),
@@ -152,7 +152,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      OverlayRequestEvent(
+      RequestEffect(
         eventType: RequestEventType.showModalBottomSheet,
         callback: (context) => m.showModalBottomSheet(
           context: context,
@@ -175,7 +175,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      OverlayRequestEvent(
+      RequestEffect(
         eventType: RequestEventType.showCupertinoDialog,
         callback: (context) => c.showCupertinoDialog(
           context: context,
@@ -204,7 +204,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      OverlayRequestEvent(
+      RequestEffect(
         eventType: RequestEventType.showCupertinoModalPopup,
         callback: (context) => c.showCupertinoModalPopup(
           context: context,
@@ -229,7 +229,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      OverlayRequestEvent(
+      RequestEffect(
         eventType: RequestEventType.showCupertinoSheet,
         callback: (context) => c.showCupertinoSheet(
           context: context,
@@ -248,7 +248,7 @@ class OverlayCenter {
   /// Shows a toast message.
   ///
   /// Toasts are a popular way to provide feedback to users.
-  /// This is a custom overlay provided by the package.
+  /// This is a custom ui effect provided by the package.
   void showToast({
     required String message,
     required ToastType toastType,
@@ -259,7 +259,7 @@ class OverlayCenter {
     Map<String, dynamic> debugProperties = const {},
   }) {
     send(
-      OverlaySendEvent(
+      SendEffect(
         eventType: SendEventType.showToast,
         callback: (context) {
           context.showToast(
@@ -284,11 +284,11 @@ class OverlayCenter {
     );
   }
 
-  /// Executes an asynchronous overlay action that can be awaited.
+  /// Executes an asynchronous ui effect that can be awaited.
   ///
-  /// Dispatches an [OverlayRequestEvent] to the active [OverlayHandler].
+  /// Dispatches an [RequestEffect] to the active [EffectHandler].
   /// This is the foundation for methods like [showDialog].
-  Future<T?> request<T>(OverlayRequestEvent<T> event) {
+  Future<T?> request<T>(RequestEffect<T> event) {
     if (!_assertHasHandler()) return Future.value(null);
 
     _registered.first.request(event);
@@ -296,11 +296,11 @@ class OverlayCenter {
     return event.future;
   }
 
-  /// Executes a synchronous overlay action that cannot be awaited.
+  /// Executes a ui effect that cannot be awaited.
   ///
-  /// Dispatches an [OverlaySendEvent] to the active [OverlayHandler].
+  /// Dispatches an [SendEffect] to the active [EffectHandler].
   /// This is the foundation for methods like [showSnackbar].
-  void send(OverlaySendEvent event) {
+  void send(SendEffect event) {
     if (!_assertHasHandler()) {
       throw StateError('No handler registered in current page.');
     }
@@ -311,8 +311,8 @@ class OverlayCenter {
   bool _assertHasHandler() {
     if (_registered.isEmpty) {
       assert(false, '''
-      Attempted to handle an overlay method without a Handler being registered.
-      Make sure that an OverlayHandler is in the widget tree on the current page.
+      Attempted to handle a ui effect without a Handler being registered.
+      Make sure that an EffectHandler is in the widget tree on the current page.
     ''');
 
       return false;
@@ -320,47 +320,47 @@ class OverlayCenter {
     return true;
   }
 
-  /// Registers an [OverlayHandlerElement] with the center.
+  /// Registers an [EffectHandlerElement] with the center.
   ///
-  /// This method is intended to be called by [OverlayHandlerElement] when it
+  /// This method is intended to be called by [EffectHandlerElement] when it
   /// is mounted and should not be called directly.
-  void registerHandlerElement(OverlayHandlerElement element) {
+  void registerHandlerElement(EffectHandlerElement element) {
     assert(!_registered.contains(element), '''
-        An overlay handler attempted to register itself to the center a second time. 
+        An effect handler attempted to register itself to the center a second time. 
         This should not happen and it probably indicates an error in the package. 
-        Please make an issue on overlay_center's github page.
+        Please make an issue on ui_effects's github page.
       ''');
 
     if (debugThrowOnMultipleHandlers && _registered.length > 1) {
       assert(_registered.length > 1, '''
-          Multiple overlay handlers were registered, this means that you have multiple handlers set up in the current app page.
-          If this was intended, you can disable this assertion by setting OverlayCenter.instance.debugThrowOnMultipleHandlers to false.
+          Multiple effect handlers were registered, this means that you have multiple handlers set up in the current app page.
+          If this was intended, you can disable this assertion by setting UICenter.instance.debugThrowOnMultipleHandlers to false.
         ''');
     }
 
     _registered.add(element);
   }
 
-  /// Deregisters an [OverlayHandlerElement] from the center.
+  /// Deregisters an [EffectHandlerElement] from the center.
   ///
-  /// This method is intended to be called by [OverlayHandlerElement] when it
+  /// This method is intended to be called by [EffectHandlerElement] when it
   /// is unmounted and should not be called directly.
-  void deregisterHandlerElement(OverlayHandlerElement element) {
+  void deregisterHandlerElement(EffectHandlerElement element) {
     assert(_registered.contains(element), '''
-        An overlay handler attempted to deregister itself from the center while not being registered. 
+        A effect handler attempted to deregister itself from the center while not being registered. 
         This should not happen and it probably indicates an error in the package. 
-        Please make an issue on overlay_center's github page.
+        Please make an issue on ui_effects's github page.
     ''');
     element.dispose();
     _registered.remove(element);
   }
 
-  /// Registers a [InspectableOverlayHandler] for testing purposes.
+  /// Registers a [InspectableEffectHandler] for testing purposes.
   ///
   /// In a test environment, this allows replacing the default UI-rendering
   /// handler with a mock handler that records events for inspection.
   @visibleForTesting
-  void registerTestHandler(InspectableOverlayHandler handler) {
+  void registerTestHandler(InspectableEffectHandler handler) {
     if (_registered.isNotEmpty) {
       throw StateError(
         'Only one test handler can be registered for each test.',
@@ -369,17 +369,17 @@ class OverlayCenter {
     _registered.add(handler);
   }
 
-  /// Deregisters a [InspectableOverlayHandler].
+  /// Deregisters a [InspectableEffectHandler].
   ///
   /// Should be called at the end of a test to ensure a clean state.
   /// Returns `true` if the handler was successfully removed.
   @visibleForTesting
-  bool deregisterTestHandler(InspectableOverlayHandler handler) {
+  bool deregisterTestHandler(InspectableEffectHandler handler) {
     handler.dispose();
     return _registered.remove(handler);
   }
 
-  /// Clears all handlers in the [OverlayCenter], essentially resetting it.
+  /// Clears all handlers in the [UICenter], essentially resetting it.
   ///
   /// Useful in test environments to ensure no handlers leak between tests.
   @visibleForTesting

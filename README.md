@@ -3,106 +3,119 @@ Show dialogs, toasts and bottom sheets, snackbars, modals and more from anywhere
 # Getting started
 
 Add the package to your project:
-`flutter pub add overlay_center`
-
-# Warning before usage
-
-Overlay center "removes" the dependency on context for overlays, and provides a different method for testing.
-Using this project me be convenient but once you are using it, it is very hard to refactor your code to not use it later on.
-
-This warning is not here to discourage you from using the package but you should first think carefully if this is really what you want.
-If your app depends a lot on dialogs and snackbars or toasts it defenitely recommend using it. If you only have a few dialogs, it is probably overkill.
+`flutter pub add ui_effects`
 
 # How it works
 
-## Overlay Handler
+## Effect Handler
 
-Add an `OverlayHandler` widget directly below the scaffold of every page (or only the pages that show dialogs, sheets, toasts, etc.).
+Add an `EffectHandler` widget directly below the scaffold of every page (or only the pages that show dialogs, sheets, toasts, etc.).
 
 ```dart
 @override
 Widget build(BuildContext context){
     return Scaffold(
-        body: OverlayHandler(
+        body: EffectHandler(
             child: MyBody(),
         ),
     );
 }
 ```
 
-Note: `OverlayHandler` can actually be placed anywhere below the scaffold in the widget tree, but for consistency it is best to add it directly below the scaffold since it does not require anything else.
+Note: `EffectHandler`s can actually be placed anywhere in the widget tree, but for consistency it is best to add it directly below the scaffold since that is the highest it can be while supporting all built in features.
 
-This handler will be handling (hence the name) any incoming overlay events, dialogs, bottom sheets, modals toasts, or something custom.
-This handler is where the context comes from! This is very important to realize, the context does not magically dissapear, it is the context at the location of the handler. This is especially crucial to know if you want to implement a custom overlay widget.
+This handler will be handling (hence the name) any incoming ui effects: dialogs, bottom sheets, modals toasts, or something custom.
+This handler is where the context comes from! This is very important to realize, the context does not magically dissapear, it is the context at the location of the handler. This is especially crucial to know if you want to implement a custom effect.
 
-## Overlay center
+## UI center
 
-This is where you can create and show overlays, it works like this:
+This is where you can create and show ui effects, it works like this:
 
 ```dart
-//Get the overlay instance from anywhere in your app
-OverlayCenter get overlay => OverlayCenter.instance;
+//Get the effect instance from anywhere in your app
+UICenter get ui => UICenter.instance;
 
 
 void aFunction(){
-    //Show a toast on the currently active page, provided it has an OverlayHandler
-    overlay.showToast(message: 'A Function was called', toastType: ToastType.succes);
+    //Show a toast on the currently active page, provided it has an EffectHandler
+    ui.showToast(message: 'A Function was called', toastType: ToastType.succes);
 }
 ```
 
-The overlay center can display the following overlays:
+The ui center can display the following effect by default:
 
 ```dart
-overlay.showDialog(MyDialog())
-//this package also provides a new overlay called toast
+ui.showDialog(MyDialog())
+//this package also provides a new ui effect called toast
 //easier to manage than snackbar or material banner
-overlay.showToast(message: ..., toastType: ...)
-overlay.showBottomSheet(MySheet())
-overlay.showModalBottomSheet(MyModalSheet())
-overlay.showCupertinoDialog(MyDialog())
-overlay.showCupertinoModalPopup(MyModal())
-overlay.showCupertinoSheet(MySheet())
+ui.showToast(message: ..., toastType: ...)
+ui.showBottomSheet(MySheet())
+ui.showModalBottomSheet(MyModalSheet())
+ui.showCupertinoDialog(MyDialog())
+ui.showCupertinoModalPopup(MyModal())
+ui.showCupertinoSheet(MySheet())
+ui.showSnackbar(Snackbar(...))
+ui.showMaterialBanner(MaterialBanner(...))
 
-//These are not really overlays but have a similar purpose so they are also available.
-overlay.showSnackbar(Snackbar(...))
-overlay.showMaterialBanner(MaterialBanner(...))
-
-//these are lower level methods to create more complex or custom overlays
-//overlay.request shows an overlay that can be popped with a value
-overlay.request((context){
-    throw UnimplementedError();
-})
-//overlay.raw can run anything and return anything, it just provides a builder with BuildContext as parameter (remember this context is the context of the OverlayHandler)
-overlay.raw((context){
-    throw UnimplementedError();
-})
+//these are lower level methods to create more complex or custom ui effects
+//ui.request shows an ui that can be popped with a value
+ui.request(RequestEffect(...))
+//ui.send can run effects that dont return a value.
+ui.send(SendEffect(...))
 ```
+
+## Creating more ui effects
+
+It is easy to add more effects to this package using extensions, an example would be implementing a navigate to effect using `go_router`.
+
+```dart
+extension NavigatorUICenter on UICenter {
+  /// Navigate to a location using [GoRouter]
+  void navigateTo(String location) => send(
+    SendEffect(
+      // built in functions each have their own event type
+      // events should be given the type custom
+      eventType: SendEventType.custom,
+      // our functionality goes here
+      callback: (context) => context.go(location),
+      // debug properties will be very usefull when testing.
+      // we will supply the navigation location as a property
+      debugProperties: {'location': location},
+    ),
+  );
+}
+```
+
+if you need to implement an effect that can return a value, use `request` and `RequestEffect` instead.
+
+having to both call `send` and `SendEffect` seems a bit double, this is a remnant of older versions of the package and might be changed in the future.
 
 ## Testing
 
-Because overlay center somewhat decouples the overlay from the widget tree, it is also possible to do tests without actually running the flutter framework.
+Because ui effects somewhat decouple the ui from the widget tree, it is also possible to do tests without actually running the flutter framework.
 
 ```dart
-test('Example test', (){
-    // create a test handler
-    final handler = TestOverlayHandler([true, null]);
+test('Example test', ()async{
+    // create an inspectable handler
+    final handler = InspectableEffectHandler();
+    // register this handler (manual registering can only be done in tests)
+    ui.registerTestHandler(handler);
 
-    // register this handler
-    overlay.registerTestHandler(handler);
+    final value = ui.showDialog(MyDialog())
 
-    //now the overlay will take the first item from the list passed to handler for each overlay event called, and return it instead of actually building the overlay.
+    //Dialogs "request" data, so we await the next request
+    final event = await handler.requests.next;
 
+    // we can inspect the dialogs properties like so
+    // debug properties have the same name as the args in the function
+    expect(event.debugProperties['dialog'], isA(MyDialog))
 
-    //This is really usefull when combined with state managers, Notifiers, Blocs or others can now show dialogs but still be tested without using the flutter framework.
+    //we can complete the event with a value, simulating a dialog close
+    event.complete(expectedValue)
 
-    notifier.doSomething();
-    expect(notifier.property, isSomething);
+    //The dialog should have completed with the value now.
+    expect(await value, expectedValue)
 })
 ```
 
-## Toasts
-
-Toasts are a very popular modal in most desktop ui libraries,
-this package adds an implementation of it.
-
-To change the style of toasts across the app wrap the widget tree with a `ToastTheme` widget.
+Testing like this becomes especially usefull when your are testing notifiers, blocs, signals or whatever state management solution you use.

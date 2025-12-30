@@ -8,20 +8,20 @@ import 'handler.dart';
 
 /// An implementation of [Handler] for testing purposes.
 ///
-/// This handler does not render any UI. Instead, it adds overlay events
+/// This handler does not render any UI. Instead, it adds effects
 /// to queues, allowing tests to asynchronously await and inspect them.
 ///
 /// Due to the asynchronous nature of handling events, it is recommended
-/// to create a new handler for each test and reset the [OverlayCenter]
+/// to create a new handler for each test and reset the [UICenter]
 /// between tests to ensure a clean state.
 ///
 /// Example:
 /// ```dart
 /// test('Show and test a dialog', () async {
-///   final handler = InspectableOverlayHandler();
-///   OverlayCenter.instance.registerTestHandler(handler);
+///   final handler = InspectableEffectHandler();
+///   EffectCenter.instance.registerTestHandler(handler);
 ///
-///   final future = OverlayCenter.instance.showDialog(AlertDialog(title: Text('Hi')));
+///   final future = EffectCenter.instance.showDialog(AlertDialog(title: Text('Hi')));
 ///
 ///   final event = await handler.requests.next;
 ///   expect(event.eventType, RequestEventType.showDialog);
@@ -30,38 +30,38 @@ import 'handler.dart';
 ///   final result = await future;
 ///   expect(result, isTrue);
 ///
-///   OverlayCenter.instance.reset();
+///   EffectCenter.instance.reset();
 /// });
 /// ```
-class InspectableOverlayHandler implements Handler {
-  /// Creates a new [InspectableOverlayHandler].
-  InspectableOverlayHandler() {
-    _requestsController = StreamController<OverlayRequestEvent>.broadcast();
-    _sendsController = StreamController<OverlaySendEvent>.broadcast();
+class InspectableEffectHandler implements Handler {
+  /// Creates a new [InspectableEffectHandler].
+  InspectableEffectHandler() {
+    _requestsController = StreamController<RequestEffect>.broadcast();
+    _sendsController = StreamController<SendEffect>.broadcast();
     requests = StreamQueue(_requestsController.stream);
     sends = StreamQueue(_sendsController.stream);
   }
 
-  late StreamController<OverlayRequestEvent> _requestsController;
-  late StreamController<OverlaySendEvent> _sendsController;
+  late StreamController<RequestEffect> _requestsController;
+  late StreamController<SendEffect> _sendsController;
 
-  /// A queue of all [OverlayRequestEvent]s that have been recorded.
+  /// A queue of all [RequestEffect]s that have been recorded.
   ///
   /// Use `await requests.next` to get the next event.
-  late StreamQueue<OverlayRequestEvent> requests;
+  late StreamQueue<RequestEffect> requests;
 
-  /// A queue of all [OverlaySendEvent]s that have been recorded.
+  /// A queue of all [SendEffect]s that have been recorded.
   ///
   /// Use `await sends.next` to get the next event.
-  late StreamQueue<OverlaySendEvent> sends;
+  late StreamQueue<SendEffect> sends;
 
   @override
-  void request<T>(OverlayRequestEvent<T> event) {
+  void request<T>(RequestEffect<T> event) {
     _requestsController.add(event);
   }
 
   @override
-  void send(OverlaySendEvent event) {
+  void send(SendEffect event) {
     _sendsController.add(event);
   }
 

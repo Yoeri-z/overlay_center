@@ -3,10 +3,10 @@ import 'dart:async';
 import 'package:flutter/widgets.dart';
 
 /// A generic callback that receives a [BuildContext] and returns a value of type `Future<T?>`.
-typedef OverlayRequest<T> = Future<T?> Function(BuildContext context);
+typedef Request<T> = Future<T?> Function(BuildContext context);
 
 /// A generic callback that receives a [BuildContext] and expects no return value.
-typedef OverlaySend = void Function(BuildContext context);
+typedef Send = void Function(BuildContext context);
 
 /// The type of the request event
 ///
@@ -31,15 +31,15 @@ enum SendEventType {
   custom,
 }
 
-///An [OverlayRequestEvent] is an event that is send to any handlers
-/// when an overlay needs to be shown that can pop with a value.
+///An [RequestEffect] is an event that is send to any handlers
+/// when an effect needs to be shown that can pop with a value.
 ///
-///When testing, [eventType] gives information about the type of overlay shown and the [debugProperties]
+///When testing, [eventType] gives information about the type of effect shown and the [debugProperties]
 ///gives properties that were given to this request event at runtime.
 @immutable
-final class OverlayRequestEvent<T> {
-  /// Construct and overlay request event.
-  OverlayRequestEvent({
+final class RequestEffect<T> {
+  /// Construct a ui effect.
+  RequestEffect({
     required this.eventType,
     required this.callback,
     required this.debugProperties,
@@ -49,9 +49,9 @@ final class OverlayRequestEvent<T> {
   final RequestEventType eventType;
 
   /// Callback that is called when context is acquired
-  final OverlayRequest<T> callback;
+  final Request<T> callback;
 
-  /// Debug properties about the event, readable when using a [InspectableOverlayHandler]
+  /// Debug properties about the event, readable when using a [InspectableEffectHandler]
   final Map<String, dynamic> debugProperties;
 
   final Completer<T?> _completer;
@@ -64,11 +64,11 @@ final class OverlayRequestEvent<T> {
   }
 }
 
-///An [OverlaySendEvent] is an event that is send to any handlers when an overlay needs to be shown that does not return a value and can not be awaited.
+///An [SendEffect] is an event that is send to any handlers when an effect needs to be shown that does not return a value and can not be awaited.
 @immutable
-final class OverlaySendEvent {
-  /// Construct an [OverlaySendEvent]
-  const OverlaySendEvent({
+final class SendEffect {
+  /// Construct an [SendEffect]
+  const SendEffect({
     required this.eventType,
     required this.callback,
     required this.debugProperties,
@@ -78,8 +78,8 @@ final class OverlaySendEvent {
   final SendEventType eventType;
 
   /// Callback that is called when context is acquired
-  final OverlaySend callback;
+  final Send callback;
 
-  /// Debug properties about the event, readable when using a [InspectableOverlayHandler]
+  /// Debug properties about the event, readable when using a [InspectableEffectHandler]
   final Map<String, dynamic> debugProperties;
 }

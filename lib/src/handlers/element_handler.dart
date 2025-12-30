@@ -6,54 +6,55 @@ import '../center.dart';
 import '../event.dart';
 import 'handler.dart';
 
-/// A widget that provides a [BuildContext] for the [OverlayCenter] to show overlays.
+/// A widget that provides a [BuildContext] for the [UICenter] to show ui effects.
+/// UI effects are imperative ui side effects, such as dialogs and navigation.
 ///
-/// An [OverlayHandler] should be placed in your widget tree, typically
-/// above the `MaterialApp` or `CupertinoApp`, so that overlays can be
+/// An [EffectHandler] should be placed in your widget tree, typically
+/// above the `MaterialApp` or `CupertinoApp`, so that effects can be
 /// displayed from anywhere in your application.
 ///
 /// Example:
 /// ```dart
-/// OverlayHandler(
+/// EffectHandler(
 ///   child: MaterialApp(
 ///     ...
 ///   ),
 /// )
 /// ```
-class OverlayHandler extends Widget {
-  /// Creates a widget that enables overlay functionality for its descendants.
-  const OverlayHandler({super.key, required this.child});
+class EffectHandler extends Widget {
+  /// Creates a widget that supplies a handler to display ui-effects.
+  const EffectHandler({super.key, required this.child});
 
   /// The widget below this widget in the tree.
   final Widget child;
 
   @override
-  OverlayHandlerElement createElement() => OverlayHandlerElement(this);
+  EffectHandlerElement createElement() => EffectHandlerElement(this);
 }
 
-/// The element for [OverlayHandler].
+/// The element for [EffectHandler].
 ///
 /// This element implements the [Handler] interface and registers itself with
-/// [OverlayCenter] when it's mounted, and deregisters when unmounted.
-class OverlayHandlerElement extends ComponentElement implements Handler {
+/// [UICenter] when it's mounted, and deregisters when unmounted.
+class EffectHandlerElement extends ComponentElement implements Handler {
   /// Creates an element that uses the given widget as its configuration.
-  OverlayHandlerElement(super.widget);
+  EffectHandlerElement(super.widget);
 
   @override
-  Future<void> request<T>(OverlayRequestEvent<T> event) async {
+  Future<void> request<T>(RequestEffect<T> event) async {
     event.complete(event.callback(this));
   }
 
   @override
-  void send(OverlaySendEvent event) {
+  void send(SendEffect event) {
     event.callback(this);
   }
 
   @override
-  Widget build() => (widget as OverlayHandler).child;
+  Widget build() => (widget as EffectHandler).child;
 
   @override
-  void update(OverlayHandler newWidget) {
+  void update(EffectHandler newWidget) {
     //implementation copied from [StatelessElement]
     super.update(newWidget);
     assert(widget == newWidget);
@@ -63,12 +64,12 @@ class OverlayHandlerElement extends ComponentElement implements Handler {
   @override
   void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
-    OverlayCenter.instance.registerHandlerElement(this);
+    UICenter.instance.registerHandlerElement(this);
   }
 
   @override
   void unmount() {
-    OverlayCenter.instance.deregisterHandlerElement(this);
+    UICenter.instance.deregisterHandlerElement(this);
     super.unmount();
   }
 

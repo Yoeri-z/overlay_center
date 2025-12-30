@@ -34,7 +34,7 @@ enum ToastType {
   neutral,
 }
 
-/// Defines the visual properties of toasts shown by [OverlayCenter].
+/// Defines the visual properties of toasts shown by [UICenter].
 ///
 /// Used by [ToastTheme] to pass down toast styling through the widget tree.
 @immutable

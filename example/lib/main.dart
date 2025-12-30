@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:overlay_center/overlay_center.dart';
+import 'package:overlay_center/ui_effects.dart';
 
-OverlayCenter get overlay => OverlayCenter.instance;
+UICenter get ui => UICenter.instance;
 
 void main() {
   runApp(const MyApp());
@@ -70,18 +70,15 @@ class _MyHomePageState extends State<MyHomePage> {
   int _counter = 0;
 
   void _incrementCounter() async {
-    final allowed = await overlay.showDialog<bool>(ConfirmationDialog());
+    final allowed = await ui.showDialog<bool>(ConfirmationDialog());
 
     if (allowed != null && allowed) {
       setState(() {
         _counter++;
       });
-      overlay.showToast(
-        message: 'Incremented counter',
-        toastType: ToastType.succes,
-      );
+      ui.showToast(message: 'Incremented counter', toastType: ToastType.succes);
     } else {
-      overlay.showToast(
+      ui.showToast(
         message: 'Did not increment counter',
         toastType: ToastType.error,
       );
@@ -97,7 +94,7 @@ class _MyHomePageState extends State<MyHomePage> {
         title: Text(widget.title),
       ),
       //register a handler below the scaffold.
-      body: OverlayHandler(
+      body: EffectHandler(
         child: Center(
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
