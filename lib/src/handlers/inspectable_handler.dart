@@ -35,15 +35,16 @@ import 'handler.dart';
 /// ```
 class InspectableEffectHandler implements Handler {
   /// Creates a new [InspectableEffectHandler].
-  InspectableEffectHandler() {
-    _requestsController = StreamController<RequestEffect>.broadcast();
-    _sendsController = StreamController<SendEffect>.broadcast();
+  InspectableEffectHandler()
+    : _requestsController = StreamController<RequestEffect>.broadcast(),
+      _sendsController = StreamController<SendEffect>.broadcast() {
     requests = StreamQueue(_requestsController.stream);
     sends = StreamQueue(_sendsController.stream);
+    UICenter.instance.registerHandler(this);
   }
 
-  late StreamController<RequestEffect> _requestsController;
-  late StreamController<SendEffect> _sendsController;
+  final StreamController<RequestEffect> _requestsController;
+  final StreamController<SendEffect> _sendsController;
 
   /// A queue of all [RequestEffect]s that have been recorded.
   ///
@@ -69,9 +70,9 @@ class InspectableEffectHandler implements Handler {
   ///
   /// This should be called when the handler is no longer needed, typically
   /// at the end of a test suite.
-  @override
   void dispose() {
     _requestsController.close();
     _sendsController.close();
+    UICenter.instance.deregisterHandler(this);
   }
 }

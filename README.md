@@ -98,8 +98,6 @@ Because ui effects somewhat decouple the ui from the widget tree, it is also pos
 test('Example test', ()async{
     // create an inspectable handler
     final handler = InspectableEffectHandler();
-    // register this handler (manual registering can only be done in tests)
-    ui.registerTestHandler(handler);
 
     final value = ui.showDialog(MyDialog())
 
@@ -115,6 +113,9 @@ test('Example test', ()async{
 
     //The dialog should have completed with the value now.
     expect(await value, expectedValue)
+
+    //since only one handler is supposed to registered at a time, we dispose it after.
+    handler.dispose()
 })
 ```
 

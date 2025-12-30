@@ -64,15 +64,12 @@ class EffectHandlerElement extends ComponentElement implements Handler {
   @override
   void mount(Element? parent, Object? newSlot) {
     super.mount(parent, newSlot);
-    UICenter.instance.registerHandlerElement(this);
+    UICenter.instance.registerHandler(this);
   }
 
   @override
   void unmount() {
-    UICenter.instance.deregisterHandlerElement(this);
+    UICenter.instance.deregisterHandler(this);
     super.unmount();
   }
-
-  @override
-  void dispose() {}
 }

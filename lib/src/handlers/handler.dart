@@ -17,6 +17,4 @@ abstract interface class Handler {
   /// The handler should execute the effect without needing
   /// to return a value.
   void send(SendEffect event);
-
-  void dispose();
 }

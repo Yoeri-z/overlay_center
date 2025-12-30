@@ -1,7 +1,6 @@
 import 'dart:async';
 import 'dart:collection';
 
-import 'package:flutter/foundation.dart';
 import 'package:flutter/widgets.dart' as w;
 import 'package:flutter/cupertino.dart' as c;
 import 'package:flutter/material.dart' as m;
@@ -12,7 +11,6 @@ import 'toast/toast.dart';
 import 'toast/toast_theme.dart';
 import 'handlers/element_handler.dart';
 import 'context_extensions.dart';
-import 'handlers/inspectable_handler.dart';
 
 /// A centralized manager for showing ui (side) effects like dialogs, bottom sheets, and snackbars.
 ///
@@ -320,12 +318,12 @@ class UICenter {
     return true;
   }
 
-  /// Registers an [EffectHandlerElement] with the center.
+  /// Registers an [Handler] with the center.
   ///
-  /// This method is intended to be called by [EffectHandlerElement] when it
+  /// This method is intended to be called by [Handler] when it
   /// is mounted and should not be called directly.
-  void registerHandlerElement(EffectHandlerElement element) {
-    assert(!_registered.contains(element), '''
+  void registerHandler(Handler handler) {
+    assert(!_registered.contains(handler), '''
         An effect handler attempted to register itself to the center a second time. 
         This should not happen and it probably indicates an error in the package. 
         Please make an issue on ui_effects's github page.
@@ -338,56 +336,19 @@ class UICenter {
         ''');
     }
 
-    _registered.add(element);
+    _registered.add(handler);
   }
 
-  /// Deregisters an [EffectHandlerElement] from the center.
+  /// Deregisters a [Handler] from the center.
   ///
   /// This method is intended to be called by [EffectHandlerElement] when it
   /// is unmounted and should not be called directly.
-  void deregisterHandlerElement(EffectHandlerElement element) {
-    assert(_registered.contains(element), '''
+  void deregisterHandler(Handler handler) {
+    assert(_registered.contains(handler), '''
         A effect handler attempted to deregister itself from the center while not being registered. 
         This should not happen and it probably indicates an error in the package. 
         Please make an issue on ui_effects's github page.
     ''');
-    element.dispose();
-    _registered.remove(element);
-  }
-
-  /// Registers a [InspectableEffectHandler] for testing purposes.
-  ///
-  /// In a test environment, this allows replacing the default UI-rendering
-  /// handler with a mock handler that records events for inspection.
-  @visibleForTesting
-  void registerTestHandler(InspectableEffectHandler handler) {
-    if (_registered.isNotEmpty) {
-      throw StateError(
-        'Only one test handler can be registered for each test.',
-      );
-    }
-    _registered.add(handler);
-  }
-
-  /// Deregisters a [InspectableEffectHandler].
-  ///
-  /// Should be called at the end of a test to ensure a clean state.
-  /// Returns `true` if the handler was successfully removed.
-  @visibleForTesting
-  bool deregisterTestHandler(InspectableEffectHandler handler) {
-    handler.dispose();
-    return _registered.remove(handler);
-  }
-
-  /// Clears all handlers in the [UICenter], essentially resetting it.
-  ///
-  /// Useful in test environments to ensure no handlers leak between tests.
-  @visibleForTesting
-  void reset() {
-    for (var h in _registered) {
-      h.dispose();
-    }
-
-    _registered.clear();
+    _registered.remove(handler);
   }
 }

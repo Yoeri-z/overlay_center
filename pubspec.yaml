@@ -1,7 +1,7 @@
 name: ui_effects
 description: "A new Flutter package project."
 version: 0.0.1
-homepage:
+github: https://github.com/Yoeri-z/ui_effects
 
 environment:
   sdk: ^3.10.3
