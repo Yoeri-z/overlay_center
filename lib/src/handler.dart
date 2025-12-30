@@ -1,9 +1,22 @@
-import 'package:overlay_center/src/common.dart';
+import 'package:overlay_center/src/event.dart';
 
+/// Defines the contract for an overlay handler.
+///
+/// A [Handler] is responsible for processing overlay events dispatched
+/// by the [OverlayCenter]. This allows for different implementations, such
+/// as one that renders UI and another for testing.
 abstract interface class Handler {
-  /// Handles an overlay request which is an overlay event that returns a value
-  Future<T?> request<T>(OverlayRequest<T> handler);
+  /// Handles an [OverlayRequestEvent] that expects a value in return.
+  ///
+  /// The handler should execute the overlay and complete the event's
+  /// future when the overlay is dismissed.
+  void request<T>(OverlayRequestEvent<T> event);
 
-  /// Handles an overlay request that can return anything, including controllers.
-  void send(OverlaySend handler);
+  /// Handles an [OverlaySendEvent] that is fire-and-forget.
+  ///
+  /// The handler should execute the overlay action without needing
+  /// to return a value.
+  void send(OverlaySendEvent event);
+
+  void dispose();
 }

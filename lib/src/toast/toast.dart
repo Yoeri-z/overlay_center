@@ -3,10 +3,15 @@ import 'package:fluttertoast/fluttertoast.dart';
 
 import 'package:overlay_center/src/toast/toast_theme.dart';
 
+/// Provides the [showToast] method as an extension on [BuildContext].
 extension ToastScopeContext on BuildContext {
   ColorScheme get _colorScheme => Theme.of(this).colorScheme;
   ToastThemeData get _toastTheme => ToastTheme.of(this);
 
+  /// Shows a toast message using the `fluttertoast` package.
+  ///
+  /// The toast's appearance is determined by the [ToastThemeData] obtained
+  /// from the current [BuildContext].
   void showToast({
     required String message,
     required ToastType toastType,

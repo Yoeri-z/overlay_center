@@ -6,13 +6,13 @@ import 'package:flutter/widgets.dart' as w;
 import 'package:flutter/material.dart' as m;
 import 'package:flutter/cupertino.dart' as c;
 
-import 'package:overlay_center/src/common.dart';
+import 'package:overlay_center/src/event.dart';
 import 'package:overlay_center/src/handler.dart';
-import 'package:overlay_center/src/testing.dart';
 import 'package:overlay_center/src/toast/toast.dart';
 import 'package:overlay_center/src/toast/toast_theme.dart';
 import 'package:overlay_center/src/widget.dart';
 import 'package:overlay_center/src/context_extensions.dart';
+import 'package:overlay_center/src/testing.dart';
 
 /// A centralized manager for showing overlays like dialogs, bottom sheets, and snackbars.
 ///
@@ -22,7 +22,7 @@ import 'package:overlay_center/src/context_extensions.dart';
 ///
 /// Example:
 /// ```dart
-/// OverlayCenter.instance.showDialog((context) => AlertDialog(title: Text('Hi')));
+/// OverlayCenter.instance.showDialog(AlertDialog(title: Text('Hi')));
 /// ```
 class OverlayCenter {
   OverlayCenter._();
@@ -42,11 +42,7 @@ class OverlayCenter {
 
   /// Displays a Material dialog.
   ///
-  /// A convenience method that wraps `showDialog`. For more complex dialogs
-  /// or for more control over the dialog's properties, it is recommended to
-  /// create a standalone function and pass it to [request].
-  ///
-  /// Returns a [Future] that completes to the value passed to [Navigator.pop]
+  /// Returns a [Future] that completes to the value passed to `Navigator.pop`
   /// when the dialog is closed.
   Future<T?> showDialog<T>(
     m.Widget dialog, {
@@ -54,25 +50,51 @@ class OverlayCenter {
     String? barrierLabel,
     bool fullscreenDialog = false,
     bool? requestFocus,
+    Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      (context) => m.showDialog(
-        context: context,
-        builder: (context) => dialog,
-        barrierDismissible: barrierDismissible,
-        barrierLabel: barrierLabel,
-        fullscreenDialog: fullscreenDialog,
-        requestFocus: requestFocus,
+      OverlayRequestEvent(
+        eventType: RequestEventType.showDialog,
+        callback: (context) => m.showDialog(
+          context: context,
+          builder: (context) => dialog,
+          barrierDismissible: barrierDismissible,
+          barrierLabel: barrierLabel,
+          fullscreenDialog: fullscreenDialog,
+          requestFocus: requestFocus,
+        ),
+        debugProperties: {
+          'dialog': dialog,
+          'barrierDismissible': barrierDismissible,
+          'barrierLabel': barrierLabel,
+          'fullscreenDialog': fullscreenDialog,
+          'requestFocus': requestFocus,
+          ...debugProperties,
+        },
       ),
     );
   }
 
   /// Displays a Material bottom sheet.
   ///
-  /// if [duration] is provided bottom sheet closes automatically after the given duration.
-  void showBottomSheet<T>(m.Widget sheet, {Duration? duration}) {
+  /// If a [duration] is provided, the bottom sheet will close automatically
+  /// after the given duration.
+  void showBottomSheet<T>(
+    m.Widget sheet, {
+    Duration? duration,
+    Map<String, dynamic> debugProperties = const {},
+  }) {
     return send(
-      (context) => context.showBottomSheet(sheet, duration: duration),
+      OverlaySendEvent(
+        eventType: SendEventType.showBottomSheet,
+        callback: (context) =>
+            context.showBottomSheet(sheet, duration: duration),
+        debugProperties: {
+          'sheet': sheet,
+          'duration': duration,
+          ...debugProperties,
+        },
+      ),
     );
   }
 
@@ -80,83 +102,153 @@ class OverlayCenter {
   void showSnackbar(
     m.SnackBar snackBar, {
     w.AnimationStyle? snackBarAnimationStyle,
+    Map<String, dynamic> debugProperties = const {},
   }) {
     return send(
-      (context) => context.showSnackBar(
-        snackBar,
-        snackBarAnimationStyle: snackBarAnimationStyle,
+      OverlaySendEvent(
+        eventType: SendEventType.showSnackbar,
+        callback: (context) => context.showSnackBar(
+          snackBar,
+          snackBarAnimationStyle: snackBarAnimationStyle,
+        ),
+        debugProperties: {
+          'snackBar': snackBar,
+          'snackBarAnimationStyle': snackBarAnimationStyle,
+          ...debugProperties,
+        },
       ),
     );
   }
 
   /// Shows a [m.MaterialBanner] at the top of the screen.
   ///
-  /// if [duration] is provided material banner closes automatically after the given duration.
-  void showMaterialBanner(m.MaterialBanner banner, {Duration? duration}) {
+  /// If a [duration] is provided, the banner will close automatically
+  /// after the given duration.
+  void showMaterialBanner(
+    m.MaterialBanner banner, {
+    Duration? duration,
+    Map<String, dynamic> debugProperties = const {},
+  }) {
     return send(
-      (context) => context.showMaterialBanner(banner, duration: duration),
+      OverlaySendEvent(
+        eventType: SendEventType.showMaterialBanner,
+        callback: (context) =>
+            context.showMaterialBanner(banner, duration: duration),
+        debugProperties: {
+          'banner': banner,
+          'duration': duration,
+          ...debugProperties,
+        },
+      ),
     );
   }
 
   /// Displays a modal Material bottom sheet.
   ///
-  /// A modal bottom sheet is an alternative to a menu or a dialog and prevents
-  /// the user from interacting with the rest of the app.
-  Future<T?> showModalBottomSheet<T>(m.Widget sheet) {
+  /// A modal bottom sheet prevents the user from interacting with the rest
+  /// of the app.
+  Future<T?> showModalBottomSheet<T>(
+    m.Widget sheet, {
+    Map<String, dynamic> debugProperties = const {},
+  }) {
     return request(
-      (context) =>
-          m.showModalBottomSheet(context: context, builder: (context) => sheet),
+      OverlayRequestEvent(
+        eventType: RequestEventType.showModalBottomSheet,
+        callback: (context) => m.showModalBottomSheet(
+          context: context,
+          builder: (context) => sheet,
+        ),
+        debugProperties: {'sheet': sheet, ...debugProperties},
+      ),
     );
   }
 
   /// Displays a Cupertino-style dialog.
+  ///
+  /// Returns a [Future] that completes to the value passed to `Navigator.pop`
+  /// when the dialog is closed.
   Future<T?> showCupertinoDialog<T>(
     c.Widget dialog, {
     bool barrierDismissible = true,
     String? barrierLabel,
     bool? requestFocus,
+    Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      (context) => c.showCupertinoDialog(
-        context: context,
-        builder: (context) => dialog,
-        barrierDismissible: barrierDismissible,
-        barrierLabel: barrierLabel,
-        requestFocus: requestFocus,
+      OverlayRequestEvent(
+        eventType: RequestEventType.showCupertinoDialog,
+        callback: (context) => c.showCupertinoDialog(
+          context: context,
+          builder: (context) => dialog,
+          barrierDismissible: barrierDismissible,
+          barrierLabel: barrierLabel,
+          requestFocus: requestFocus,
+        ),
+        debugProperties: {
+          'dialog': dialog,
+          'barrierDismissible': barrierDismissible,
+          'barrierLabel': barrierLabel,
+          'requestFocus': requestFocus,
+          ...debugProperties,
+        },
       ),
     );
   }
 
-  /// Shows a Cupertino-style modal popup that slides up from the bottom of the screen.
+  /// Shows a Cupertino-style modal popup that slides up from the bottom
+  /// of the screen.
   Future<T?> showCupertinoModalPopup<T>(
     c.Widget modal, {
     bool barrierDismissible = true,
     bool? requestFocus,
+    Map<String, dynamic> debugProperties = const {},
   }) {
     return request(
-      (context) => c.showCupertinoModalPopup(
-        context: context,
-        builder: (context) => modal,
-        barrierDismissible: barrierDismissible,
-        requestFocus: requestFocus,
+      OverlayRequestEvent(
+        eventType: RequestEventType.showCupertinoModalPopup,
+        callback: (context) => c.showCupertinoModalPopup(
+          context: context,
+          builder: (context) => modal,
+          barrierDismissible: barrierDismissible,
+          requestFocus: requestFocus,
+        ),
+        debugProperties: {
+          'modal': modal,
+          'barrierDismissible': barrierDismissible,
+          'requestFocus': requestFocus,
+          ...debugProperties,
+        },
       ),
     );
   }
 
   /// Shows a Cupertino-style bottom sheet.
-  Future<T?> showCupertinoSheet<T>(c.Widget sheet, {bool enableDrag = true}) {
+  Future<T?> showCupertinoSheet<T>(
+    c.Widget sheet, {
+    bool enableDrag = true,
+    Map<String, dynamic> debugProperties = const {},
+  }) {
     return request(
-      (context) => c.showCupertinoSheet(
-        context: context,
-        builder: (context) => sheet,
-        enableDrag: enableDrag,
+      OverlayRequestEvent(
+        eventType: RequestEventType.showCupertinoSheet,
+        callback: (context) => c.showCupertinoSheet(
+          context: context,
+          builder: (context) => sheet,
+          enableDrag: enableDrag,
+        ),
+        debugProperties: {
+          'sheet': sheet,
+          'enableDrag': enableDrag,
+          ...debugProperties,
+        },
       ),
     );
   }
 
-  /// Show a toast message, this is a custom extra overlay option provided by this package.
+  /// Shows a toast message.
   ///
-  /// Toasts are a popular way to provide feedback to users on desktop applications.
+  /// Toasts are a popular way to provide feedback to users.
+  /// This is a custom overlay provided by the package.
   void showToast({
     required String message,
     required ToastType toastType,
@@ -164,44 +256,56 @@ class OverlayCenter {
     Duration toastDuration = const Duration(seconds: 2),
     Duration fadeDuration = const Duration(milliseconds: 350),
     bool isDismissible = false,
+    Map<String, dynamic> debugProperties = const {},
   }) {
-    return send(
-      (context) => context.showToast(
-        message: message,
-        toastType: toastType,
-        alignment: alignment,
-        toastDuration: toastDuration,
-        fadeDuration: fadeDuration,
-        isDismissible: isDismissible,
+    send(
+      OverlaySendEvent(
+        eventType: SendEventType.showToast,
+        callback: (context) {
+          context.showToast(
+            message: message,
+            toastType: toastType,
+            alignment: alignment,
+            toastDuration: toastDuration,
+            fadeDuration: fadeDuration,
+            isDismissible: isDismissible,
+          );
+        },
+        debugProperties: {
+          'message': message,
+          'toastType': toastType,
+          'alignment': alignment,
+          'toastDuration': toastDuration,
+          'fadeDuration': fadeDuration,
+          'isDismissible': isDismissible,
+          ...debugProperties,
+        },
       ),
     );
   }
 
-  /// Executes an asynchronous overlay action that returns a [Future].
+  /// Executes an asynchronous overlay action that can be awaited.
   ///
-  /// This method finds the registered [OverlayHandler] and uses its context
-  /// to execute the provided [action]. It's the foundation for methods like
-  /// [showDialog] and [showModalBottomSheet].
-  ///
-  /// Throws an assertion error in debug mode if no [OverlayHandler] is found.
-  Future<T?> request<T>(OverlayRequest<T> action) {
+  /// Dispatches an [OverlayRequestEvent] to the active [OverlayHandler].
+  /// This is the foundation for methods like [showDialog].
+  Future<T?> request<T>(OverlayRequestEvent<T> event) {
     if (!_assertHasHandler()) return Future.value(null);
 
-    return _registered.first.request(action);
+    _registered.first.request(event);
+
+    return event.future;
   }
 
-  /// Executes a synchronous overlay action.
+  /// Executes a synchronous overlay action that cannot be awaited.
   ///
-  /// Similar to [request], but for actions that return a value directly,
-  /// such as showing a snackbar and getting its controller.
-  ///
-  /// Throws a [StateError] if no [OverlayHandler] is found.
-  void send(OverlaySend action) {
+  /// Dispatches an [OverlaySendEvent] to the active [OverlayHandler].
+  /// This is the foundation for methods like [showSnackbar].
+  void send(OverlaySendEvent event) {
     if (!_assertHasHandler()) {
       throw StateError('No handler registered in current page.');
     }
 
-    _registered.first.send(action);
+    _registered.first.send(event);
   }
 
   bool _assertHasHandler() {
@@ -218,8 +322,8 @@ class OverlayCenter {
 
   /// Registers an [OverlayHandlerElement] with the center.
   ///
-  /// This method is intended to be called by [OverlayHandlerElement] when it is mounted.
-  /// It should not be called directly.
+  /// This method is intended to be called by [OverlayHandlerElement] when it
+  /// is mounted and should not be called directly.
   void registerHandlerElement(OverlayHandlerElement element) {
     assert(!_registered.contains(element), '''
         An overlay handler attempted to register itself to the center a second time. 
@@ -239,8 +343,8 @@ class OverlayCenter {
 
   /// Deregisters an [OverlayHandlerElement] from the center.
   ///
-  /// This method is intended to be called by [OverlayHandlerElement] when it is unmounted.
-  /// It should not be called directly.
+  /// This method is intended to be called by [OverlayHandlerElement] when it
+  /// is unmounted and should not be called directly.
   void deregisterHandlerElement(OverlayHandlerElement element) {
     assert(_registered.contains(element), '''
         An overlay handler attempted to deregister itself from the center while not being registered. 
@@ -251,11 +355,12 @@ class OverlayCenter {
     _registered.remove(element);
   }
 
-  /// Registers a [TestOverlayHandler] for testing purposes.
+  /// Registers a [InspectableOverlayHandler] for testing purposes.
   ///
-  /// Throws a [StateError] if any other handler is already registered.
+  /// In a test environment, this allows replacing the default UI-rendering
+  /// handler with a mock handler that records events for inspection.
   @visibleForTesting
-  void registerTestHandler(TestOverlayHandler handler) {
+  void registerTestHandler(InspectableOverlayHandler handler) {
     if (_registered.isNotEmpty) {
       throw StateError(
         'Only one test handler can be registered for each test.',
@@ -264,28 +369,21 @@ class OverlayCenter {
     _registered.add(handler);
   }
 
-  /// Deregisters a [TestOverlayHandler].
+  /// Deregisters a [InspectableOverlayHandler].
   ///
+  /// Should be called at the end of a test to ensure a clean state.
   /// Returns `true` if the handler was successfully removed.
   @visibleForTesting
-  bool deregisterTestHandler(TestOverlayHandler handler) {
+  bool deregisterTestHandler(InspectableOverlayHandler handler) {
+    handler.dispose();
     return _registered.remove(handler);
   }
 
-  /// Clears all the handlers in the [OverlayCenter], essentially resetting it.
+  /// Clears all handlers in the [OverlayCenter], essentially resetting it.
+  ///
+  /// Useful in test environments to ensure no handlers leak between tests.
   @visibleForTesting
   void reset() {
     _registered.clear();
-  }
-}
-
-mixin ScaffoldMessengerExtension on w.BuildContext {
-  void showSnackBar(
-    m.SnackBar snackBar, {
-    w.AnimationStyle? snackbarAnimationStyle,
-  }) {
-    m.ScaffoldMessenger.of(
-      this,
-    ).showSnackBar(snackBar, snackBarAnimationStyle: snackbarAnimationStyle);
   }
 }

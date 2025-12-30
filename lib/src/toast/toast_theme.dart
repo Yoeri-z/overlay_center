@@ -2,6 +2,7 @@ import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
 import 'package:fluttertoast/fluttertoast.dart';
 
+/// Specifies the alignment of a toast on the screen.
 enum ToastAlignment {
   bottom(ToastGravity.BOTTOM),
   bottomLeft(ToastGravity.BOTTOM_LEFT),
@@ -15,18 +16,29 @@ enum ToastAlignment {
 
   const ToastAlignment(this.gravity);
 
+  /// The underlying gravity value from the `fluttertoast` package.
   final ToastGravity gravity;
 }
 
-/// The type of toast to be displayed.
-enum ToastType { succes, error, neutral }
+/// The type of toast to be displayed, which determines its default
+/// color and icon.
+enum ToastType {
+  /// Indicates a successful operation.
+  succes,
 
-/// Defines the visual properties of toasts.
+  /// Indicates an error or failure.
+  error,
+
+  /// Provides neutral, informational feedback.
+  neutral,
+}
+
+/// Defines the visual properties of toasts shown by [OverlayCenter].
 ///
-/// Used by [ToastTheme] to pass down the theme to widgets.
+/// Used by [ToastTheme] to pass down toast styling through the widget tree.
 @immutable
 class ToastThemeData with Diagnosticable {
-  /// Creates a theme for toast widgets.
+  /// Creates a theme for customizing toast widgets.
   const ToastThemeData({
     this.successBackgroundColor,
     this.errorBackgroundColor,
@@ -67,9 +79,11 @@ class ToastThemeData with Diagnosticable {
   /// The icon for neutral toasts.
   final IconData? neutralIcon;
 
+  /// The default alignment for all toasts.
   final ToastAlignment? alignment;
 
-  /// Creates a copy of this theme but with the given fields replaced with the new values.
+  /// Creates a copy of this theme but with the given fields replaced with
+  /// new values.
   ToastThemeData copyWith({
     Color? successBackgroundColor,
     Color? errorBackgroundColor,
@@ -157,17 +171,17 @@ class ToastThemeData with Diagnosticable {
 
   @override
   int get hashCode => Object.hash(
-    successBackgroundColor,
-    errorBackgroundColor,
-    neutralBackgroundColor,
-    successForegroundColor,
-    errorForegroundColor,
-    neutralForegroundColor,
-    successIcon,
-    errorIcon,
-    neutralIcon,
-    alignment,
-  );
+        successBackgroundColor,
+        errorBackgroundColor,
+        neutralBackgroundColor,
+        successForegroundColor,
+        errorForegroundColor,
+        neutralForegroundColor,
+        successIcon,
+        errorIcon,
+        neutralIcon,
+        alignment,
+      );
 
   @override
   void debugFillProperties(DiagnosticPropertiesBuilder properties) {
@@ -194,18 +208,19 @@ class ToastThemeData with Diagnosticable {
 }
 
 /// An inherited widget that makes a [ToastThemeData] available to descendants.
+///
+/// Use this widget to apply a consistent toast style across your app.
 class ToastTheme extends InheritedWidget {
-  /// Creates a toast theme that controls the color and style of descendant toasts.
+  /// Creates a toast theme that controls the style of descendant toasts.
   const ToastTheme({super.key, required this.data, required super.child});
 
-  /// The theme data.
+  /// The style configuration for descendant toasts.
   final ToastThemeData data;
 
   /// The data from the closest [ToastTheme] instance that encloses the given
-  /// context.
+  /// [BuildContext].
   ///
-  /// If no [ToastTheme] is in scope, this will return a default
-  /// [ToastThemeData].
+  /// If no [ToastTheme] is in scope, a default [ToastThemeData] is returned.
   static ToastThemeData of(BuildContext context) {
     final ToastTheme? result = context
         .dependOnInheritedWidgetOfExactType<ToastTheme>();
