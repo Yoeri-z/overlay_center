@@ -290,7 +290,7 @@ class UICenter {
 
   /// Executes an asynchronous ui effect that can be awaited.
   ///
-  /// Dispatches an [RequestEffect] to the active [EffectHandler].
+  /// Dispatches a [RequestEffect] to the active [EffectHandler].
   /// This is the foundation for methods like [showDialog].
   Future<T?> request<T>(RequestEffect<T> event) {
     if (!_assertHasHandler()) return Future.value(null);
@@ -302,12 +302,10 @@ class UICenter {
 
   /// Executes a ui effect that cannot be awaited.
   ///
-  /// Dispatches an [SendEffect] to the active [EffectHandler].
+  /// Dispatches a [SendEffect] to the active [EffectHandler].
   /// This is the foundation for methods like [showSnackBar].
   void send(SendEffect event) {
-    if (!_assertHasHandler()) {
-      throw StateError('No handler registered in current page.');
-    }
+    if (!_assertHasHandler()) return;
 
     _registered.first.send(event);
   }

@@ -61,7 +61,7 @@ extension ToastScopeContext on BuildContext {
 
   Color _determineBackgroundColor(ToastType type) {
     return switch (type) {
-      ToastType.succes =>
+      ToastType.success =>
         _toastTheme.successBackgroundColor ?? _colorScheme.tertiaryContainer,
       ToastType.error =>
         _toastTheme.errorBackgroundColor ?? _colorScheme.errorContainer,
@@ -72,7 +72,7 @@ extension ToastScopeContext on BuildContext {
 
   Color _determineTextColor(ToastType type) {
     return switch (type) {
-      ToastType.succes =>
+      ToastType.success =>
         _toastTheme.successForegroundColor ?? _colorScheme.onTertiaryContainer,
       ToastType.error =>
         _toastTheme.errorForegroundColor ?? _colorScheme.onErrorContainer,
@@ -83,7 +83,7 @@ extension ToastScopeContext on BuildContext {
 
   IconData _determineIcon(ToastType type) {
     return switch (type) {
-      ToastType.succes => _toastTheme.successIcon ?? Icons.check,
+      ToastType.success => _toastTheme.successIcon ?? Icons.check,
       ToastType.error => _toastTheme.errorIcon ?? Icons.error,
       ToastType.neutral => _toastTheme.neutralIcon ?? Icons.info,
     };

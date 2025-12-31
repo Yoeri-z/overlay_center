@@ -11,26 +11,24 @@ import 'handler.dart';
 /// This handler does not render any UI. Instead, it adds effects
 /// to queues, allowing tests to asynchronously await and inspect them.
 ///
-/// Due to the asynchronous nature of handling events, it is recommended
-/// to create a new handler for each test and reset the [UICenter]
+/// Due to the asynchronous nature of ui side effects, it is recommended
+/// to create a new handler for each test and dispose it
 /// between tests to ensure a clean state.
 ///
 /// Example:
 /// ```dart
 /// test('Show and test a dialog', () async {
 ///   final handler = InspectableEffectHandler();
-///   EffectCenter.instance.registerTestHandler(handler);
 ///
-///   final future = EffectCenter.instance.showDialog(AlertDialog(title: Text('Hi')));
+///   final future = UICenter.instance.showDialog(AlertDialog(title: Text('Hi')));
 ///
 ///   final event = await handler.requests.next;
 ///   expect(event.eventType, RequestEventType.showDialog);
 ///
 ///   event.complete(true);
-///   final result = await future;
-///   expect(result, isTrue);
+///   expect(await future, isTrue);
 ///
-///   EffectCenter.instance.reset();
+///   handler.dispose
 /// });
 /// ```
 class InspectableEffectHandler implements Handler {

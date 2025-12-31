@@ -1,7 +1,9 @@
 name: ui_effects
-description: "A new Flutter package project."
-version: 0.0.1
-github: https://github.com/Yoeri-z/ui_effects
+description: "Create ui side effects from anywhere in your code"
+version: 1.0.0
+homepage: https://github.com/Yoeri-z/ui_effects
+repository: https://github.com/Yoeri-z/ui_effects
+issue_tracker: https://github.com/Yoeri-z/ui_effects/issues
 
 environment:
   sdk: ^3.10.3

@@ -10,7 +10,10 @@ import 'handler.dart';
 /// UI effects are imperative ui side effects, such as dialogs and navigation.
 ///
 /// An [EffectHandler] should be placed in your widget tree, typically
-/// below `Scaffold` or `CupertinoScaffold`.
+/// below `Scaffold` for material and below `CupertinoApp` for cupertino.
+///
+/// By default assertions will make sure only one EffectHandler is in the widget tree at any time.
+/// if you want to disable this behaviour you can do so by setting [UICenter.debugThrowOnMultipleHandlers] to false.
 class EffectHandler extends Widget {
   /// Creates a widget that supplies a handler to display ui-effects.
   const EffectHandler({super.key, required this.child});

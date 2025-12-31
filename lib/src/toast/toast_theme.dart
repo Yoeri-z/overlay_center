@@ -25,7 +25,7 @@ enum ToastAlignment {
 /// color and icon.
 enum ToastType {
   /// Indicates a successful operation.
-  succes,
+  success,
 
   /// Indicates an error or failure.
   error,

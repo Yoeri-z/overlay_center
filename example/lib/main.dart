@@ -85,7 +85,7 @@ class _MyHomePageState extends State<MyHomePage> {
       setState(() {
         _counter++;
       });
-      ui.showToast(message: 'Incremented counter', toastType: ToastType.succes);
+      ui.showToast(message: 'Incremented counter', toastType: ToastType.success);
     } else {
       ui.showToast(
         message: 'Did not increment counter',

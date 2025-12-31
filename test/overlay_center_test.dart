@@ -236,7 +236,7 @@ void main() {
 
     ui.showToast(
       message: 'Toast message',
-      toastType: .succes,
+      toastType: .success,
       fadeDuration: Duration(milliseconds: 50),
     );
 
@@ -264,7 +264,10 @@ void main() {
     });
 
     test('showDialog launches request event', () async {
-      ui.showDialog(Placeholder(), debugProperties: {'custom': Object()});
+      final result = ui.showDialog<bool>(
+        Placeholder(),
+        debugProperties: {'custom': Object()},
+      );
 
       final event = await handler.requests.next;
 
@@ -280,8 +283,101 @@ void main() {
 
       expect(event.debugProperties['caller'], 'showDialog');
       expect(event.debugProperties['dialog'], isA<Placeholder>());
+
+      event.complete(true);
+
+      expect(await result, isTrue);
     });
 
+    test('showModalBottomSheet launches a request event', () async {
+      final result = ui.showModalBottomSheet<bool>(
+        Placeholder(),
+        debugProperties: {'custom': Object()},
+      );
+
+      final event = await handler.requests.next;
+
+      expect(event.debugProperties.keys, ['caller', 'sheet', 'custom']);
+
+      expect(event.debugProperties['caller'], 'showModalBottomSheet');
+      expect(event.debugProperties['sheet'], isA<Placeholder>());
+
+      event.complete(true);
+
+      expect(await result, isTrue);
+    });
+
+    test('showCupertinoDialog launches request event', () async {
+      final result = ui.showCupertinoDialog<bool>(
+        Placeholder(),
+        debugProperties: {'custom': Object()},
+      );
+
+      final event = await handler.requests.next;
+
+      expect(event.debugProperties.keys, [
+        'caller',
+        'dialog',
+        'barrierDismissible',
+        'barrierLabel',
+        'requestFocus',
+        'custom',
+      ]);
+
+      expect(event.debugProperties['caller'], 'showCupertinoDialog');
+      expect(event.debugProperties['dialog'], isA<Placeholder>());
+
+      event.complete(true);
+
+      expect(await result, isTrue);
+    });
+
+    test('showCupertinoModalPopup launches request event', () async {
+      final result = ui.showCupertinoModalPopup<bool>(
+        Placeholder(),
+        debugProperties: {'custom': Object()},
+      );
+
+      final event = await handler.requests.next;
+
+      expect(event.debugProperties.keys, [
+        'caller',
+        'modal',
+        'barrierDismissible',
+        'requestFocus',
+        'custom',
+      ]);
+
+      expect(event.debugProperties['caller'], 'showCupertinoModalPopup');
+      expect(event.debugProperties['modal'], isA<Placeholder>());
+
+      event.complete(true);
+
+      expect(await result, isTrue);
+    });
+
+    test('showCupertinoSheet launches request event', () async {
+      final result = ui.showCupertinoSheet<bool>(
+        Placeholder(),
+        debugProperties: {'custom': Object()},
+      );
+
+      final event = await handler.requests.next;
+
+      expect(event.debugProperties.keys, [
+        'caller',
+        'sheet',
+        'enableDrag',
+        'custom',
+      ]);
+
+      expect(event.debugProperties['caller'], 'showCupertinoSheet');
+      expect(event.debugProperties['sheet'], isA<Placeholder>());
+
+      event.complete(true);
+
+      expect(await result, isTrue);
+    });
     test('showSnackbar launches a send event', () async {
       ui.showSnackBar(
         SnackBar(content: Placeholder()),
@@ -340,79 +436,10 @@ void main() {
       expect(event.debugProperties['banner'], isA<MaterialBanner>());
     });
 
-    test('showModalBottomSheet launches a request event', () async {
-      ui.showModalBottomSheet(Placeholder(),
-          debugProperties: {'custom': Object()});
-
-      final event = await handler.requests.next;
-
-      expect(event.debugProperties.keys, [
-        'caller',
-        'sheet',
-        'custom',
-      ]);
-
-      expect(event.debugProperties['caller'], 'showModalBottomSheet');
-      expect(event.debugProperties['sheet'], isA<Placeholder>());
-    });
-
-    test('showCupertinoDialog launches request event', () async {
-      ui.showCupertinoDialog(Placeholder(),
-          debugProperties: {'custom': Object()});
-
-      final event = await handler.requests.next;
-
-      expect(event.debugProperties.keys, [
-        'caller',
-        'dialog',
-        'barrierDismissible',
-        'barrierLabel',
-        'requestFocus',
-        'custom',
-      ]);
-
-      expect(event.debugProperties['caller'], 'showCupertinoDialog');
-      expect(event.debugProperties['dialog'], isA<Placeholder>());
-    });
-
-    test('showCupertinoModalPopup launches request event', () async {
-      ui.showCupertinoModalPopup(Placeholder(),
-          debugProperties: {'custom': Object()});
-
-      final event = await handler.requests.next;
-
-      expect(event.debugProperties.keys, [
-        'caller',
-        'modal',
-        'barrierDismissible',
-        'requestFocus',
-        'custom',
-      ]);
-
-      expect(event.debugProperties['caller'], 'showCupertinoModalPopup');
-      expect(event.debugProperties['modal'], isA<Placeholder>());
-    });
-
-    test('showCupertinoSheet launches request event', () async {
-      ui.showCupertinoSheet(Placeholder(), debugProperties: {'custom': Object()});
-
-      final event = await handler.requests.next;
-
-      expect(event.debugProperties.keys, [
-        'caller',
-        'sheet',
-        'enableDrag',
-        'custom',
-      ]);
-
-      expect(event.debugProperties['caller'], 'showCupertinoSheet');
-      expect(event.debugProperties['sheet'], isA<Placeholder>());
-    });
-
     test('showToast launches a send event', () async {
       ui.showToast(
         message: 'test',
-        toastType: ToastType.succes,
+        toastType: ToastType.success,
         debugProperties: {'custom': Object()},
       );
 
@@ -431,7 +458,7 @@ void main() {
 
       expect(event.debugProperties['caller'], 'showToast');
       expect(event.debugProperties['message'], 'test');
-      expect(event.debugProperties['toastType'], ToastType.succes);
+      expect(event.debugProperties['toastType'], ToastType.success);
     });
   });
 }
