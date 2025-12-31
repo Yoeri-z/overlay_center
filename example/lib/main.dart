@@ -31,27 +31,36 @@ class ConfirmationDialog extends StatelessWidget {
       shape: RoundedRectangleBorder(
         borderRadius: BorderRadiusGeometry.circular(4),
       ),
-      child: Padding(
-        padding: const EdgeInsets.all(8.0),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text('Are you sure that you want to increment the counter?'),
-            Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                TextButton(
-                  onPressed: () => Navigator.pop(context, false),
-                  child: Text('No'),
-                ),
-                TextButton(
-                  onPressed: () => Navigator.pop(context, true),
-                  child: Text('Yes'),
-                ),
-              ],
-            ),
-          ],
-        ),
+      child: ConfirmationContent(),
+    );
+  }
+}
+
+class ConfirmationContent extends StatelessWidget {
+  const ConfirmationContent({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.all(8.0),
+      child: Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          Text('Are you sure that you want to increment the counter?'),
+          Row(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextButton(
+                onPressed: () => Navigator.pop(context, false),
+                child: Text('No'),
+              ),
+              TextButton(
+                onPressed: () => Navigator.pop(context, true),
+                child: Text('Yes'),
+              ),
+            ],
+          ),
+        ],
       ),
     );
   }

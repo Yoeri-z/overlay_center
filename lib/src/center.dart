@@ -97,8 +97,9 @@ class UICenter {
   }
 
   /// Shows a [m.SnackBar] at the bottom of the screen.
-  void showSnackbar(
+  void showSnackBar(
     m.SnackBar snackBar, {
+    Duration? duration,
     w.AnimationStyle? snackBarAnimationStyle,
     Map<String, dynamic> debugProperties = const {},
   }) {
@@ -106,11 +107,13 @@ class UICenter {
       SendEffect(
         callback: (context) => context.showSnackBar(
           snackBar,
+          duration: duration,
           snackBarAnimationStyle: snackBarAnimationStyle,
         ),
         debugProperties: {
-          'caller': 'showSnackbar',
+          'caller': 'showSnackBar',
           'snackBar': snackBar,
+          'duration': duration,
           'snackBarAnimationStyle': snackBarAnimationStyle,
           ...debugProperties,
         },
@@ -300,7 +303,7 @@ class UICenter {
   /// Executes a ui effect that cannot be awaited.
   ///
   /// Dispatches an [SendEffect] to the active [EffectHandler].
-  /// This is the foundation for methods like [showSnackbar].
+  /// This is the foundation for methods like [showSnackBar].
   void send(SendEffect event) {
     if (!_assertHasHandler()) {
       throw StateError('No handler registered in current page.');

@@ -106,7 +106,7 @@ test('Example test', ()async{
     // we can inspect the dialogs properties like so
     // debug properties have the same name as the args in the function
     expect(event.debugProperties['caller'], 'showDialog')
-    expect(event.debugProperties['dialog'], isA(MyDialog))
+    expect(event.debugProperties['dialog'], isA<MyDialog>())
 
     //we can complete the event with a value, simulating a dialog close
     event.complete(expectedValue)

@@ -10,17 +10,7 @@ import 'handler.dart';
 /// UI effects are imperative ui side effects, such as dialogs and navigation.
 ///
 /// An [EffectHandler] should be placed in your widget tree, typically
-/// above the `MaterialApp` or `CupertinoApp`, so that effects can be
-/// displayed from anywhere in your application.
-///
-/// Example:
-/// ```dart
-/// EffectHandler(
-///   child: MaterialApp(
-///     ...
-///   ),
-/// )
-/// ```
+/// below `Scaffold` or `CupertinoScaffold`.
 class EffectHandler extends Widget {
   /// Creates a widget that supplies a handler to display ui-effects.
   const EffectHandler({super.key, required this.child});
